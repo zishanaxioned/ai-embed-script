@@ -1,20 +1,22 @@
-// Extends the HTMLElement class to create a custom element
 class AIWidget extends HTMLElement {
   connectedCallback() {
-    this.innerHTML = `<iframe border= 0 width= 100% height= 100% src="https://langchain-nextjs-anuragbanerjee.vercel.app/" title="Chatbot" frameborder="0"></iframe>`;
+    this.innerHTML = `
+      <iframe border="0" width="100%" height="100%" src="https://langchain-nextjs-anuragbanerjee.vercel.app/" title="Chatbot" frameborder="0"></iframe>
+    `;
   }
 }
 
-// Define the custom element
 customElements.define("ai-widget", AIWidget);
 
-// Get the value of the widgetOpen key from the local storage
-const isWidgetOpen = localStorage.getItem("widgetOpen");
-
-// Add the widget to the DOM
-window.onload = function () {
-  // Gets the widget container
+document.addEventListener("DOMContentLoaded", function () {
   const widgetContainer = document.getElementById("ai-widget-container");
+  const widgetArea = document.createElement("div");
+  const FAB = document.createElement("button");
+  const arrowIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>`;
+  const crossIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
+  const isWidgetOpen = localStorage.getItem("widgetOpen");
+  const iconbackground = widgetContainer.dataset.iconbackground || "#fff";
+
   widgetContainer.style.cssText = `
     position: fixed;
     bottom: 80px;
@@ -29,22 +31,11 @@ window.onload = function () {
     overflow: hidden;
   `;
 
-  // Create the widget area
-  const widgetArea = document.createElement("div");
-  widgetContainer.appendChild(widgetArea);
   widgetArea.classList.add("widget-area");
   widgetArea.style.cssText = `width: 100%; height: 100%;`;
 
-  // Get the icon background color from the widget container
-  const { iconbackground = "#fff" } = widgetContainer.dataset;
-
-  // Create and initialize the FAB
-  const FAB = document.createElement("button");
   FAB.id = "FAB";
-  const arrowIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>`;
-  const crossIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
   FAB.innerHTML = arrowIcon;
-  document.body.appendChild(FAB);
   FAB.style.cssText = `
     position: fixed;
     bottom: 40px;
@@ -62,35 +53,24 @@ window.onload = function () {
     transition: all 0.3s ease-in-out;
   `;
 
-  // Create the AI widget
+  widgetContainer.appendChild(widgetArea);
+  document.body.appendChild(FAB);
+
   let aIWidget = document.createElement("ai-widget");
   aIWidget.id = "aIWidget";
   aIWidget.style.cssText = `display: block; width: 100%; height: 100%;`;
   widgetArea.appendChild(aIWidget);
 
-  // Check if the widget is open or closed
+  const toggleWidget = () => {
+    const isOpen = aIWidget.classList.toggle("open");
+    widgetContainer.style.display = isOpen ? "block" : "none";
+    FAB.innerHTML = isOpen ? crossIcon : arrowIcon;
+    localStorage.setItem("widgetOpen", isOpen.toString());
+  };
+
   if (isWidgetOpen === "true") {
-    widgetContainer.style.display = "block";
-    aIWidget.classList.add("open");
-    FAB.innerHTML = crossIcon;
-  } else {
-    widgetContainer.style.display = "none";
-    aIWidget.classList.remove("open");
-    FAB.innerHTML = arrowIcon;
+    toggleWidget();
   }
 
-  // Add an event listener to the FAB
-  FAB.addEventListener("click", function () {
-    if (aIWidget.classList.contains("open")) {
-      widgetContainer.style.display = "none";
-      aIWidget.classList.remove("open");
-      FAB.innerHTML = arrowIcon;
-      localStorage.setItem("widgetOpen", "false");
-    } else {
-      widgetContainer.style.display = "block";
-      aIWidget.classList.add("open");
-      FAB.innerHTML = crossIcon;
-      localStorage.setItem("widgetOpen", "true");
-    }
-  });
-};
+  FAB.addEventListener("click", toggleWidget);
+});
