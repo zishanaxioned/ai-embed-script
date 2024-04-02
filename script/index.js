@@ -1,63 +1,75 @@
-class ChatWidget extends HTMLElement {
+// Extends the HTMLElement class to create a custom element
+class AIWidget extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `<iframe border= 0 width= 100% height= 100% src="https://langchain-nextjs-anuragbanerjee.vercel.app/" title="Chatbot" frameborder="0"></iframe>`;
   }
 }
-customElements.define("chat-widget", ChatWidget);
 
-let flag = true;
+// Define the custom element
+customElements.define("ai-widget", AIWidget);
+
 window.onload = function () {
-  // Get the modal
-  let modal = document.getElementById("ai-widget-container");
-  // Set the modal style dynamically based on the data attribute in HTML
-  let { iconbackground = "orange" } = modal.dataset;
-  modal.style.cssText = `
-    display: none;
+  const widgetContainer = document.getElementById("ai-widget-container");
+  widgetContainer.style.cssText = `
     position: fixed;
-    z-index: 1;
-    left: 20%;
-    top: 20%;
-    width: 50%;
-    height: 60%;
-    overflow: auto;
-    background-color: green;`;
+    bottom: 80px;
+    right: 80px;
+    display: none;
+    width: 480px;
+    height: 78vh;
+    z-index: 999;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+  `;
 
-  // Get the modal content
-  let modalContent = document.querySelector(
-    "#ai-widget-container .modal-content"
-  );
-  modalContent.style.cssText = `
-  background-color: violet;
-  margin: 2% auto;
-  border: 1px solid #888;
-  width: 80%;
-  height: 90%;`;
+  const widgetArea = document.createElement("div");
+  widgetContainer.appendChild(widgetArea);
+  widgetArea.classList.add("widget-area");
+  widgetArea.style.cssText = `width: 100%; height: 100%;`;
 
-  // Create the floating icon button
-  let floatingIcon = document.createElement("button");
-  floatingIcon.id = "floatingIcon";
-  floatingIcon.style.cssText = `position: fixed; bottom: 100px; right: 100px; background-color: ${iconbackground}; cursor: pointer;border-radius: 12px; padding: 15px 32px;`;
-  floatingIcon.textContent = "Open Chat";
-  document.body.appendChild(floatingIcon);
+  const { iconbackground = "#fff" } = widgetContainer.dataset;
+
+  // Create and initialize the FAB
+  const FAB = document.createElement("button");
+  FAB.id = "FAB";
+  const arrowIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>`;
+  const crossIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
+  FAB.innerHTML = arrowIcon;
+  document.body.appendChild(FAB);
+  FAB.style.cssText = `
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 40px;
+    height: 40px;
+    background-color: ${iconbackground};
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+  `;
 
   // Create the chat widget
-  let chatWidget = document.createElement("chat-widget");
-  chatWidget.id = "chatWidget";
-
-  // Append the chat widget to the modal content
-  modalContent.appendChild(chatWidget);
+  let aIWidget = document.createElement("ai-widget");
+  aIWidget.id = "aIWidget";
+  aIWidget.style.cssText = `display: block; width: 100%; height: 100%;`;
+  widgetArea.appendChild(aIWidget);
 
   // Add event listener to the floating icon button
-  floatingIcon.addEventListener("click", function () {
-    if (flag) {
-      modal.style.display = "block";
-      document.querySelector("#floatingIcon").textContent = "Close Chat";
-
-      flag = false;
+  FAB.addEventListener("click", function () {
+    if (aIWidget.classList.contains("open")) {
+      widgetContainer.style.display = "none";
+      aIWidget.classList.remove("open");
+      FAB.innerHTML = arrowIcon;
     } else {
-      modal.style.display = "none";
-      document.querySelector("#floatingIcon").textContent = "Open Chat";
-      flag = true;
+      widgetContainer.style.display = "block";
+      aIWidget.classList.add("open");
+      FAB.innerHTML = crossIcon;
     }
   });
 };
