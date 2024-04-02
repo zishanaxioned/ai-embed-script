@@ -8,7 +8,12 @@ class AIWidget extends HTMLElement {
 // Define the custom element
 customElements.define("ai-widget", AIWidget);
 
+// Get the value of the widgetOpen key from the local storage
+const isWidgetOpen = localStorage.getItem("widgetOpen");
+
+// Add the widget to the DOM
 window.onload = function () {
+  // Gets the widget container
   const widgetContainer = document.getElementById("ai-widget-container");
   widgetContainer.style.cssText = `
     position: fixed;
@@ -20,14 +25,17 @@ window.onload = function () {
     z-index: 999;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   `;
 
+  // Create the widget area
   const widgetArea = document.createElement("div");
   widgetContainer.appendChild(widgetArea);
   widgetArea.classList.add("widget-area");
   widgetArea.style.cssText = `width: 100%; height: 100%;`;
 
+  // Get the icon background color from the widget container
   const { iconbackground = "#fff" } = widgetContainer.dataset;
 
   // Create and initialize the FAB
@@ -54,22 +62,35 @@ window.onload = function () {
     transition: all 0.3s ease-in-out;
   `;
 
-  // Create the chat widget
+  // Create the AI widget
   let aIWidget = document.createElement("ai-widget");
   aIWidget.id = "aIWidget";
   aIWidget.style.cssText = `display: block; width: 100%; height: 100%;`;
   widgetArea.appendChild(aIWidget);
 
-  // Add event listener to the floating icon button
+  // Check if the widget is open or closed
+  if (isWidgetOpen === "true") {
+    widgetContainer.style.display = "block";
+    aIWidget.classList.add("open");
+    FAB.innerHTML = crossIcon;
+  } else {
+    widgetContainer.style.display = "none";
+    aIWidget.classList.remove("open");
+    FAB.innerHTML = arrowIcon;
+  }
+
+  // Add an event listener to the FAB
   FAB.addEventListener("click", function () {
     if (aIWidget.classList.contains("open")) {
       widgetContainer.style.display = "none";
       aIWidget.classList.remove("open");
       FAB.innerHTML = arrowIcon;
+      localStorage.setItem("widgetOpen", "false");
     } else {
       widgetContainer.style.display = "block";
       aIWidget.classList.add("open");
       FAB.innerHTML = crossIcon;
+      localStorage.setItem("widgetOpen", "true");
     }
   });
 };
